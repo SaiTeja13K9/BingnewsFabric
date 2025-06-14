@@ -1,0 +1,135 @@
+{
+    "name": "News-ingestion-pipeline",
+    "objectId": "06a64743-057e-41d0-8eee-477913a265f0",
+    "properties": {
+        "activities": [
+            {
+                "name": "Copy latest news",
+                "type": "Copy",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "source": {
+                        "type": "RestSource",
+                        "httpRequestTimeout": "00:01:40",
+                        "requestInterval": "00.00:00:00.010",
+                        "requestMethod": "GET",
+                        "additionalHeaders": {
+                            "Ocp-Apim-Subscription-Key": "418bd5d0bd69472eafd8d61101d439e4"
+                        },
+                        "paginationRules": {
+                            "supportRFC5988": "true"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "type": "RestResource",
+                            "typeProperties": {
+                                "relativeUrl": {
+                                    "value": "?q=@{pipeline().parameters.search_term}&count=100&freshness=Day&mkt=en-IN\n",
+                                    "type": "Expression"
+                                }
+                            },
+                            "schema": [],
+                            "externalReferences": {
+                                "connection": "c2683385-55c9-4d82-847c-17514d46f531"
+                            }
+                        }
+                    },
+                    "sink": {
+                        "type": "JsonSink",
+                        "storeSettings": {
+                            "type": "LakehouseWriteSettings"
+                        },
+                        "formatSettings": {
+                            "type": "JsonWriteSettings"
+                        },
+                        "datasetSettings": {
+                            "annotations": [],
+                            "linkedService": {
+                                "name": "bing_lake_db",
+                                "properties": {
+                                    "annotations": [],
+                                    "type": "Lakehouse",
+                                    "typeProperties": {
+                                        "workspaceId": "69ea5c21-070f-443a-842a-81b0939d5e38",
+                                        "artifactId": "34360cea-9538-428e-a556-7c435728988a",
+                                        "rootFolder": "Files"
+                                    }
+                                }
+                            },
+                            "type": "Json",
+                            "typeProperties": {
+                                "location": {
+                                    "type": "LakehouseLocation",
+                                    "fileName": "bing-latest-news.json"
+                                }
+                            },
+                            "schema": {}
+                        }
+                    },
+                    "enableStaging": false
+                }
+            },
+            {
+                "name": "Data Transformation",
+                "type": "TridentNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Copy latest news",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "notebookId": "0536a638-7150-46f3-89b4-569c48d69f0a",
+                    "workspaceId": "69ea5c21-070f-443a-842a-81b0939d5e38"
+                }
+            },
+            {
+                "name": "Sentiment Analysis",
+                "type": "TridentNotebook",
+                "dependsOn": [
+                    {
+                        "activity": "Data Transformation",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "typeProperties": {
+                    "notebookId": "77779d66-e92e-4df3-aeee-90fdec56dd68",
+                    "workspaceId": "69ea5c21-070f-443a-842a-81b0939d5e38"
+                }
+            }
+        ],
+        "parameters": {
+            "search_term": {
+                "type": "string",
+                "defaultValue": "latest news"
+            }
+        },
+        "lastModifiedByObjectId": "c8d3bd1f-672a-4cf7-9cfd-76db96ab49c6",
+        "lastPublishTime": "2025-04-28T00:38:37Z"
+    }
+}
