@@ -40,7 +40,7 @@ This project showcases an end-to-end data engineering pipeline leveraging Micros
 
 # 📑 File Structure
 
-```
+
 - data_pipeline
   - ingestion_pipeline.json
 ![image](https://github.com/user-attachments/assets/dbe29637-8428-4fa4-b57d-05e4835a768f)
@@ -54,7 +54,7 @@ This project showcases an end-to-end data engineering pipeline leveraging Micros
  ![image](https://github.com/user-attachments/assets/18ffe0e0-03bd-4fb4-867c-996e7827d190)
 ![image](https://github.com/user-attachments/assets/ab0f388f-9523-4a7c-8cb1-a5a3e7291565)
 
-```
+
 
 # 🚀 Quick Start
 
